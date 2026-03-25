@@ -27,9 +27,9 @@ export const usePlannerStore = create(
         return newRoom.id
       },
 
-      updateRoom: (id, updates) => {
-        set((state) => ({
-          rooms: state.rooms.map((room) =>
+      updateRoom: (id, updates, oldRoom) => {
+        set((state) => {
+          const updatedRooms = state.rooms.map((room) =>
             room.id === id
               ? {
                   ...room,
@@ -42,8 +42,24 @@ export const usePlannerStore = create(
                     : room.heightMeters,
                 }
               : room
-          ),
-        }))
+          )
+
+          if (updates.x !== undefined && oldRoom) {
+            const deltaX = updates.x - oldRoom.x
+            const deltaY = updates.y - oldRoom.y
+
+            if (deltaX !== 0 || deltaY !== 0) {
+              const updatedFurniture = state.furniture.map((item) =>
+                item.roomId === id
+                  ? { ...item, x: item.x + deltaX, y: item.y + deltaY }
+                  : item
+              )
+              return { rooms: updatedRooms, furniture: updatedFurniture }
+            }
+          }
+
+          return { rooms: updatedRooms }
+        })
       },
 
       deleteRoom: (id) => {

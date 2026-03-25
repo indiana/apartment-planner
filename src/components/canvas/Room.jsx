@@ -10,10 +10,11 @@ export const Room = ({ room }) => {
   const isSelected = selectedId === room.id
 
   const handleDragEnd = (e) => {
+    const oldRoom = { x: room.x, y: room.y }
     updateRoom(room.id, {
       x: e.target.x(),
       y: e.target.y(),
-    })
+    }, oldRoom)
   }
 
   const handleTransformEnd = (e) => {
@@ -24,12 +25,13 @@ export const Room = ({ room }) => {
     node.scaleX(1)
     node.scaleY(1)
 
+    const oldRoom = { x: room.x, y: room.y }
     updateRoom(room.id, {
       x: node.x(),
       y: node.y(),
       width: Math.max(50, room.width * scaleX),
       height: Math.max(50, room.height * scaleY),
-    })
+    }, oldRoom)
   }
 
   return (

@@ -37,3 +37,12 @@ export const isAnchorClick = (e) => e.target.getClassName() === 'Anchor'
 export const isTransformerClick = (e) => e.target.getParent()?.getClassName() === 'Transformer'
 
 export const isRoomElement = (e) => e.target.name()?.startsWith('room')
+
+export const findRoomAtPoint = (rooms, x, y) => {
+  return rooms.find((room) =>
+    x >= room.x &&
+    x <= room.x + room.width &&
+    y >= room.y &&
+    y <= room.y + room.height
+  )
+}

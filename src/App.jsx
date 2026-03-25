@@ -4,7 +4,7 @@ import { useDrawing, useExport } from './hooks'
 import { FloorCanvas } from './components/canvas'
 import { Header, Sidebar } from './components/ui'
 import { FURNITURE_TYPES } from './constants'
-import { toPixels } from './utils'
+import { toPixels, findRoomAtPoint } from './utils'
 
 function App() {
   const stageRef = useRef(null)
@@ -43,6 +43,8 @@ function App() {
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
 
+    const targetRoom = findRoomAtPoint(rooms, x, y)
+
     addFurniture({
       type: furnitureType,
       x: x - toPixels(itemType.width) / 2,
@@ -53,6 +55,7 @@ function App() {
         : toPixels(itemType.height),
       rotation: 0,
       flip: 1,
+      roomId: targetRoom?.id || null,
     })
   }
 

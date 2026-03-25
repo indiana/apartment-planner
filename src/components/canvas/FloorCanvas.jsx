@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { Stage, Layer, Line, Text, Transformer } from 'react-konva'
+import { Stage, Layer, Line, Text, Transformer, Rect } from 'react-konva'
 import { usePlannerStore } from '../../store/plannerStore'
 import { Room } from './Room'
 import { FurnitureRenderer } from './FurnitureRenderer'
@@ -116,6 +116,14 @@ export const FloorCanvas = ({
       onMouseUp={handleMouseUp}
     >
       <Layer>
+        <Rect
+          x={0}
+          y={0}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          fill="white"
+          listening={false}
+        />
         {drawGrid()}
         {rooms.length === 0 && !drawing && (
           <Text

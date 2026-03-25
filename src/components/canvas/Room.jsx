@@ -27,13 +27,7 @@ export const Room = ({ room }) => {
 
     node.scaleX(1)
     node.scaleY(1)
-
-    const rectNode = node.findOne('Rect')
-    if (rectNode) {
-      rectNode.width(newWidth)
-      rectNode.height(newHeight)
-      rectNode.getLayer()?.batchDraw()
-    }
+    node.getLayer()?.batchDraw()
 
     const oldRoom = { x: room.x, y: room.y }
     updateRoom(room.id, {
@@ -42,6 +36,10 @@ export const Room = ({ room }) => {
       width: newWidth,
       height: newHeight,
     }, oldRoom)
+
+    requestAnimationFrame(() => {
+      node.getLayer()?.batchDraw()
+    })
   }
 
   return (

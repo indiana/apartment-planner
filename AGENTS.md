@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is an apartment floor planner webapp built with React + react-konva. Users can draw rooms, place furniture (sofas, desks, beds, chairs), doors, and windows on a canvas with real-world measurements in meters.
+This is an apartment floor planner webapp built with React + react-konva + Zustand. Users can draw rooms, place furniture (sofas, desks, beds, chairs), doors, and windows on a canvas with real-world measurements in meters.
 
 ## Build Commands
 
@@ -39,6 +39,40 @@ npm test file.test.js       # Run single test file
 npm test -- --watch         # Watch mode
 ```
 
+## File Structure
+
+```
+src/
+├── App.jsx                 # Main component - composes everything
+├── main.jsx                # Entry point
+├── index.css               # Tailwind imports and base styles
+├── constants.js            # All configuration values
+├── utils.js                # Pure utility functions
+├── store/
+│   └── plannerStore.js     # Zustand store with all state + actions
+├── hooks/
+│   ├── index.js            # Export all hooks
+│   ├── useDrawing.js       # Room drawing state and handlers
+│   ├── useZoom.js          # Zoom controls
+│   └── useExport.js       # PNG export functionality
+└── components/
+    ├── canvas/
+    │   ├── index.js
+    │   ├── FloorCanvas.jsx     # Main canvas with Stage/Layers
+    │   ├── Room.jsx            # Room rendering with labels
+    │   ├── FurnitureRenderer.jsx # Renders different furniture types
+    │   ├── Door.jsx            # Door with swing arc
+    │   ├── Window.jsx          # Window with crosshairs
+    │   └── DrawingPreview.jsx  # Dashed preview while drawing
+    └── ui/
+        ├── index.js
+        ├── Header.jsx          # Title, zoom controls, export/clear
+        ├── Sidebar.jsx         # Composes sidebar sections
+        ├── FurniturePalette.jsx # Draggable furniture items
+        ├── SelectionControls.jsx # Rotate, flip, delete buttons
+        └── RoomsList.jsx       # Room list with surfaces
+```
+
 ## Code Style Guidelines
 
 ### General Conventions
@@ -49,79 +83,95 @@ npm test -- --watch         # Watch mode
 - **Line length**: Max 100 characters recommended
 - **Trailing commas**: Optional in multiline structures
 
-### File Structure
-
-```
-src/
-├── App.jsx          # Main component (all logic in single file for simplicity)
-├── main.jsx         # Entry point
-└── index.css        # Tailwind imports and base styles
-```
-
 ### Import Order
 
 1. React hooks (`useState`, `useRef`, `useEffect`, `useCallback`)
 2. react-konva components (`Stage`, `Layer`, `Rect`, `Group`, `Transformer`, etc.)
-3. Third-party libraries
-4. Local utilities/constants
+3. Third-party libraries (zustand)
+4. Local modules (store, hooks, components, constants, utils)
 
 **Example:**
 ```jsx
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { Stage, Layer, Rect, Line, Group, Transformer, Text, Arc, Shape } from 'react-konva'
-
-const STORAGE_KEY = 'apartment-planner-data'
-const GRID_SIZE = 20
-const PIXELS_PER_METER = 50
+import { useState, useRef, useEffect } from 'react'
+import { Stage, Layer, Rect, Group } from 'react-konva'
+import { usePlannerStore } from './store/plannerStore'
+import { Room } from './components/canvas'
+import { CANVAS_WIDTH, COLORS } from './constants'
 ```
 
 ### Naming Conventions
 
 | Type | Convention | Example |
 |------|------------|---------|
-| Components | PascalCase | `App`, `FloorPlanner` |
-| Functions | camelCase | `handleDragStart`, `handleSelect` |
+| Components | PascalCase | `App`, `Room`, `FloorCanvas` |
+| Hooks | camelCase with `use` prefix | `useDrawing`, `useZoom` |
+| Store | camelCase with `Store` suffix | `usePlannerStore` |
+| Functions | camelCase | `handleDragStart`, `select` |
 | Constants | UPPER_SNAKE_CASE | `STORAGE_KEY`, `PIXELS_PER_METER` |
-| Event handlers | `handle` prefix | `handleMouseDown`, `handleClick` |
-| State setters | `set` prefix | `setRooms`, `setFurniture` |
+| Event handlers | `handle` prefix | `handleMouseDown`, `onClick` |
+| State setters | In Zustand actions | `addRoom`, `updateRoom`, `deleteRoom` |
 | Refs | `Ref` suffix | `stageRef`, `transformerRef` |
 | IDs | `kebab-case` with prefix | `room-${Date.now()}`, `furniture-1` |
 
-### React Patterns
+### Zustand Store Patterns
 
-#### State Management
-```jsx
-// Use functional updates for derived state
-const [items, setItems] = useState([])
+**Store Definition:**
+```javascript
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
-const addItem = (newItem) => {
-  setItems(prev => [...prev, newItem])
-}
+export const usePlannerStore = create(
+  persist(
+    (set, get) => ({
+      // State
+      rooms: [],
+      furniture: [],
+      selectedId: null,
 
-// Batch related state in objects when appropriate
-const [drawState, setDrawState] = useState({
-  isDrawing: false,
-  start: null,
-  current: null,
-})
+      // Actions
+      addRoom: (roomData) => {
+        set((state) => ({
+          rooms: [...state.rooms, { id: generateId('room'), ...roomData }]
+        }))
+      },
+
+      updateRoom: (id, updates) => {
+        set((state) => ({
+          rooms: state.rooms.map((room) =>
+            room.id === id ? { ...room, ...updates } : room
+          )
+        }))
+      },
+      // ... more actions
+    }),
+    {
+      name: STORAGE_KEY,
+      partialize: (state) => ({
+        rooms: state.rooms,
+        furniture: state.furniture,
+      }),
+    }
+  )
+)
 ```
+
+**Using the Store:**
+```jsx
+// Select specific state slices to minimize re-renders
+const rooms = usePlannerStore((state) => state.rooms)
+const addRoom = usePlannerStore((state) => state.addRoom)
+const select = usePlannerStore((state) => state.select)
+```
+
+### React Patterns
 
 #### useEffect Dependencies
 ```jsx
-// Always include all dependencies - lint rule enforces this
+// Always include all dependencies
 useEffect(() => {
-  localStorage.setItem(KEY, JSON.stringify(data))
-}, [data])  // Include all referenced variables
-```
-
-#### useCallback for Event Handlers
-```jsx
-// Wrap event handlers in useCallback when passed to child components
-const handleDelete = useCallback(() => {
-  if (selectedId) {
-    setItems(items.filter(item => item.id !== selectedId))
-  }
-}, [selectedId, items])
+  transformerRef.current.nodes([selectedNode])
+  transformerRef.current.getLayer().batchDraw()
+}, [selectedId])
 ```
 
 #### Konva-Specific Patterns
@@ -130,9 +180,9 @@ const handleDelete = useCallback(() => {
 ```jsx
 // ID MUST be on the Group/Rect, not on child elements
 <Group
-  id={item.id}        // Correct - ID on Group
+  id={room.id}        // Correct - ID on Group
   draggable
-  onDragEnd={...}
+  onDragEnd={handleDragEnd}
 >
   <Rect width={100} height={100} />  {/* No ID here */}
 </Group>
@@ -140,50 +190,23 @@ const handleDelete = useCallback(() => {
 
 **Checking for Anchor Clicks:**
 ```jsx
-const handleMouseDown = (e) => {
-  const clickedOnAnchor = e.target.getClassName() === 'Anchor'
-  const clickedOnTransformer = e.target.getParent()?.getClassName() === 'Transformer'
-  
-  if (clickedOnEmpty && !clickedOnAnchor && !clickedOnTransformer) {
-    // Start drawing new room
-  }
-}
-```
+import { isCanvasClick, isAnchorClick, isTransformerClick } from '../../utils'
 
-**Transform End Handler:**
-```jsx
-const handleTransformEnd = (e, id) => {
-  const node = e.target
-  // Reset scale after transform
-  node.scaleX(1)
-  node.scaleY(1)
-  
-  // Update state with new dimensions
-  setItems(items.map(item => {
-    if (item.id === id) {
-      return { ...item, width: node.width(), height: node.height() }
-    }
-    return item
-  }))
+const handleMouseDown = (e) => {
+  if (isCanvasClick(e)) {
+    // Clicked on empty canvas
+  } else if (isAnchorClick(e) || isTransformerClick(e)) {
+    // Don't deselect
+  }
 }
 ```
 
 ### Error Handling
 
-#### localStorage
-```jsx
-useEffect(() => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      const data = JSON.parse(saved)
-      setRooms(data.rooms || [])
-      setFurniture(data.furniture || [])
-    }
-  } catch (error) {
-    console.error('Failed to load saved data:', error)
-  }
-}, [])
+#### localStorage (via Zustand persist)
+```javascript
+// Errors are handled automatically by Zustand persist middleware
+// No manual try/catch needed
 ```
 
 #### Null Checks
@@ -193,8 +216,8 @@ const stage = stageRef.current
 if (!stage) return
 
 // Check before accessing array elements
-const item = items.find(t => t.type === furnitureType)
-if (!item) return
+const room = rooms.find(r => r.id === id)
+if (!room) return
 ```
 
 ### JSX Style
@@ -220,89 +243,37 @@ if (!item) return
 - Responsive: `md:flex-row`, `lg:w-1/2`
 - Interactive: `hover:bg-gray-200`, `active:cursor-grabbing`
 
-### Type Safety
-
-This project uses JSDoc for documentation. When adding functions, include parameter and return types:
-
-```jsx
-/**
- * @param {number} meters - Distance in meters
- * @returns {number} - Distance in pixels
- */
-const toPixels = (meters) => meters * PIXELS_PER_METER
-```
-
-### LocalStorage Persistence Pattern
-
-```jsx
-// Load on mount
-useEffect(() => {
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (saved) {
-    const data = JSON.parse(saved)
-    // Validate structure before setting state
-    if (Array.isArray(data.rooms)) {
-      setRooms(data.rooms)
-    }
-  }
-}, [])
-
-// Save on change
-useEffect(() => {
-  if (rooms.length > 0 || furniture.length > 0) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ rooms, furniture }))
-  }
-}, [rooms, furniture])
-```
-
-## Konva Canvas Notes
-
-### Scale and Zoom
-- Zoom implemented via Stage `scale` prop, not canvas resizing
-- Mouse positions need adjustment: `stage.getPointerPosition()` already accounts for scale
-
-### Grid Drawing
-```jsx
-const drawGrid = () => {
-  const lines = []
-  const canvasWidth = 1200
-  const canvasHeight = 800
-
-  for (let i = 0; i <= canvasWidth / GRID_SIZE; i++) {
-    lines.push(
-      <Line
-        key={`v-${i}`}
-        points={[i * GRID_SIZE, 0, i * GRID_SIZE, canvasHeight]}
-        stroke="#e5e7eb"
-        strokeWidth={1}
-        name="grid"
-      />
-    )
-  }
-  return lines
-}
-```
-
-### Room Structure
-- Rooms are `Group` components with `x/y` for positioning (not inner Rect)
-- Text labels inside rooms use positions relative to Group origin
-- Room dimensions stored in both pixels and meters (`widthMeters`, `heightMeters`)
-
 ## Common Tasks
 
 ### Adding New Furniture Type
-1. Add to `FURNITURE_TYPES` array in App.jsx
-2. Add render logic in `renderFurniture` function
-3. Update sidebar palette
 
-### Adding New Tool/Action
-1. Add state variable if needed
-2. Create handler function
-3. Add UI button/control
-4. Wire up in JSX
+1. Add to `FURNITURE_TYPES` array in `src/constants.js`
+2. Add render logic in `src/components/canvas/FurnitureRenderer.jsx`
+3. Add to `FurniturePalette` in `src/components/ui/FurniturePalette.jsx`
+
+### Adding New Canvas Element
+
+1. Create new component in `src/components/canvas/`
+2. Export from `src/components/canvas/index.js`
+3. Import and use in `FloorCanvas.jsx`
+
+### Adding New UI Section
+
+1. Create new component in `src/components/ui/`
+2. Export from `src/components/ui/index.js`
+3. Import and compose in `Sidebar.jsx`
+
+### Adding Store Actions
+
+1. Add action to `src/store/plannerStore.js`
+2. Actions receive `set` and `get` parameters
+3. Use `set((state) => ({ ... }))` for state updates
 
 ### Debugging Canvas Issues
+
 - Check browser console for React/Konva errors
 - Use `console.log` on event handlers to trace interactions
 - Verify IDs are unique and correctly placed
 - Check that `draggable` prop is set on transformable elements
+- Use React DevTools to inspect component tree
+- Use Zustand DevTools to inspect state changes

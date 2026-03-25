@@ -22,11 +22,18 @@ export const Room = ({ room }) => {
 
     const scaleX = node.scaleX()
     const scaleY = node.scaleY()
-    const newWidth = Math.max(50, node.width() * scaleX)
-    const newHeight = Math.max(50, node.height() * scaleY)
+    const newWidth = Math.max(50, room.width * scaleX)
+    const newHeight = Math.max(50, room.height * scaleY)
 
     node.scaleX(1)
     node.scaleY(1)
+
+    const rectNode = node.findOne('Rect')
+    if (rectNode) {
+      rectNode.width(newWidth)
+      rectNode.height(newHeight)
+      rectNode.getLayer()?.batchDraw()
+    }
 
     const oldRoom = { x: room.x, y: room.y }
     updateRoom(room.id, {

@@ -19,15 +19,12 @@ export const Room = ({ room }) => {
 
   const handleTransformEnd = (e) => {
     const node = e.target
+    const layer = node.getLayer()
 
     const scaleX = node.scaleX()
     const scaleY = node.scaleY()
     const newWidth = Math.max(50, room.width * scaleX)
     const newHeight = Math.max(50, room.height * scaleY)
-
-    node.scaleX(1)
-    node.scaleY(1)
-    node.getLayer()?.batchDraw()
 
     const oldRoom = { x: room.x, y: room.y }
     updateRoom(room.id, {
@@ -37,9 +34,11 @@ export const Room = ({ room }) => {
       height: newHeight,
     }, oldRoom)
 
-    requestAnimationFrame(() => {
-      node.getLayer()?.batchDraw()
-    })
+    setTimeout(() => {
+      node.scaleX(1)
+      node.scaleY(1)
+      layer?.batchDraw()
+    }, 0)
   }
 
   return (

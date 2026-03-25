@@ -3,7 +3,8 @@ import { usePlannerStore } from './store/plannerStore'
 import { useDrawing, useExport } from './hooks'
 import { FloorCanvas } from './components/canvas'
 import { Header, Sidebar } from './components/ui'
-import { FURNITURE_TYPES, toPixels } from './constants'
+import { FURNITURE_TYPES } from './constants'
+import { toPixels } from './utils'
 
 function App() {
   const stageRef = useRef(null)

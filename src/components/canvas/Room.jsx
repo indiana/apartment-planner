@@ -20,13 +20,13 @@ export const Room = ({ room }) => {
   const handleTransformEnd = (e) => {
     const node = e.target
 
-    const newWidth = Math.max(50, node.width())
-    const newHeight = Math.max(50, node.height())
+    const scaleX = node.scaleX()
+    const scaleY = node.scaleY()
+    const newWidth = Math.max(50, node.width() * scaleX)
+    const newHeight = Math.max(50, node.height() * scaleY)
 
     node.scaleX(1)
     node.scaleY(1)
-    node.width(newWidth)
-    node.height(newHeight)
 
     const oldRoom = { x: room.x, y: room.y }
     updateRoom(room.id, {

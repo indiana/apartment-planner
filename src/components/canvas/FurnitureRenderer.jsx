@@ -22,13 +22,13 @@ export const FurnitureRenderer = ({ item }) => {
   const handleTransformEnd = (e, id) => {
     const node = e.target
 
-    const newWidth = Math.max(20, node.width())
-    const newHeight = Math.max(20, node.height())
+    const scaleX = node.scaleX()
+    const scaleY = node.scaleY()
+    const newWidth = Math.max(20, node.width() * scaleX)
+    const newHeight = Math.max(20, node.height() * scaleY)
 
     node.scaleX(1)
     node.scaleY(1)
-    node.width(newWidth)
-    node.height(newHeight)
 
     updateFurniture(id, {
       x: node.x(),

@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { usePlannerStore } from './store/plannerStore'
 import { useDrawing, useExport } from './hooks'
 import { FloorCanvas } from './components/canvas'
-import { Header, Sidebar } from './components/ui'
+import { Header, Sidebar, SelectionPanel } from './components/ui'
 import { FURNITURE_TYPES } from './constants'
 import { toPixels, findRoomAtPoint } from './utils'
 
@@ -94,6 +94,8 @@ function App() {
             />
           </div>
         </main>
+
+        <SelectionPanel />
       </div>
     </div>
   )

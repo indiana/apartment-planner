@@ -63,14 +63,16 @@ export const Room = ({ room }) => {
         shadowBlur={isSelected ? 15 : 0}
         shadowOpacity={0.4}
       />
-      <Text
-        x={10}
-        y={room.height / 2 - 7}
-        text={room.name}
-        fontSize={14}
-        fontStyle="bold"
-        fill={COLORS.room.text}
-      />
+      {room.showName && (
+        <Text
+          x={10}
+          y={room.height / 2 - 7}
+          text={room.name}
+          fontSize={14}
+          fontStyle="bold"
+          fill={COLORS.room.text}
+        />
+      )}
       <Text
         x={room.width / 2 - 15}
         y={room.height - 15}

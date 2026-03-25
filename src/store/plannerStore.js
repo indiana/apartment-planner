@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { STORAGE_KEY, PIXELS_PER_METER, LIMITS } from '../constants'
+import { STORAGE_KEY, PIXELS_PER_METER, LIMITS, FURNITURE_TYPES } from '../constants'
 import { generateId, toMeters } from '../utils'
 
 export const usePlannerStore = create(
@@ -16,6 +16,7 @@ export const usePlannerStore = create(
         const newRoom = {
           id: generateId('room'),
           name: `Room ${roomNumber}`,
+          showName: true,
           x: roomData.x,
           y: roomData.y,
           width: roomData.width,
@@ -78,14 +79,29 @@ export const usePlannerStore = create(
         }))
       },
 
+      setShowName: (id, showName) => {
+        set((state) => ({
+          rooms: state.rooms.map((room) =>
+            room.id === id ? { ...room, showName } : room
+          ),
+          furniture: state.furniture.map((item) =>
+            item.id === id ? { ...item, showName } : item
+          ),
+        }))
+      },
+
       addFurniture: (furnitureData) => {
+        const { furniture } = get()
+        const typeName = FURNITURE_TYPES.find(t => t.type === furnitureData.type)?.name ||
+          furnitureData.type.charAt(0).toUpperCase() + furnitureData.type.slice(1)
+        const countOfType = furniture.filter(f => f.type === furnitureData.type).length + 1
         const newFurniture = {
           id: generateId(furnitureData.type),
+          name: `${typeName} ${countOfType}`,
+          showName: true,
           ...furnitureData,
         }
-        set((state) => ({
-          furniture: [...state.furniture, newFurniture],
-        }))
+        set({ furniture: [...furniture, newFurniture] })
         return newFurniture.id
       },
 
@@ -93,6 +109,14 @@ export const usePlannerStore = create(
         set((state) => ({
           furniture: state.furniture.map((item) =>
             item.id === id ? { ...item, ...updates } : item
+          ),
+        }))
+      },
+
+      renameFurniture: (id, name) => {
+        set((state) => ({
+          furniture: state.furniture.map((item) =>
+            item.id === id ? { ...item, name } : item
           ),
         }))
       },

@@ -1,4 +1,4 @@
-import { Rect } from 'react-konva'
+import { Rect, Group, Text } from 'react-konva'
 import { Door } from './Door'
 import { Window } from './Window'
 import { usePlannerStore } from '../../store/plannerStore'
@@ -64,25 +64,39 @@ export const FurnitureRenderer = ({ item }) => {
   }
 
   return (
-    <Rect
+    <Group
       id={item.id}
       x={item.x}
       y={item.y}
-      width={item.width}
-      height={item.height}
-      fill={furnitureType?.color || COLORS.furniture.chair}
-      opacity={0.8}
       rotation={item.rotation}
       draggable
       onClick={() => select(item.id)}
       onTap={() => select(item.id)}
       onDragEnd={(e) => handleDragEnd(e, item.id)}
       onTransformEnd={(e) => handleTransformEnd(e, item.id)}
-      shadowColor="black"
-      shadowBlur={isSelected ? 10 : 0}
-      shadowOpacity={0.3}
-      shadowEnabled={isSelected}
-      cornerRadius={item.type === 'sofa' ? 8 : 2}
-    />
+    >
+      <Rect
+        width={item.width}
+        height={item.height}
+        fill={furnitureType?.color || COLORS.furniture.chair}
+        opacity={0.8}
+        shadowColor="black"
+        shadowBlur={isSelected ? 10 : 0}
+        shadowOpacity={0.3}
+        shadowEnabled={isSelected}
+        cornerRadius={item.type === 'sofa' ? 8 : 2}
+      />
+      {item.showName && (
+        <Text
+          x={0}
+          y={item.height / 2 - 5}
+          width={item.width}
+          text={item.name}
+          fontSize={10}
+          fill="white"
+          align="center"
+        />
+      )}
+    </Group>
   )
 }

@@ -9,6 +9,11 @@ export const usePlannerStore = create(
       rooms: [],
       furniture: [],
       selectedId: null,
+      snapToWalls: false,
+
+      toggleSnapToWalls: () => {
+        set((state) => ({ snapToWalls: !state.snapToWalls }))
+      },
 
       addRoom: (roomData) => {
         const { rooms } = get()

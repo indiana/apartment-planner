@@ -3,14 +3,25 @@ import { Door } from './Door'
 import { Window } from './Window'
 import { usePlannerStore } from '../../store/plannerStore'
 import { FURNITURE_TYPES, COLORS } from '../../constants'
+import { snapPosition } from '../../utils'
 
 export const FurnitureRenderer = ({ item }) => {
   const selectedId = usePlannerStore((state) => state.selectedId)
   const select = usePlannerStore((state) => state.select)
   const updateFurniture = usePlannerStore((state) => state.updateFurniture)
+  const snapToWalls = usePlannerStore((state) => state.snapToWalls)
+  const rooms = usePlannerStore((state) => state.rooms)
+  const furniture = usePlannerStore((state) => state.furniture)
 
   const furnitureType = FURNITURE_TYPES.find((t) => t.type === item.type)
   const isSelected = selectedId === item.id
+
+  const handleDragMove = (e, id) => {
+    if (!snapToWalls) return
+    const node = e.target
+    const snapped = snapPosition(node.x(), node.y(), item.width, item.height, rooms, furniture, id, item.roomId)
+    node.position({ x: snapped.x, y: snapped.y })
+  }
 
   const handleDragEnd = (e, id) => {
     updateFurniture(id, {
@@ -45,6 +56,7 @@ export const FurnitureRenderer = ({ item }) => {
         door={item}
         isSelected={isSelected}
         onSelect={select}
+        onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
       />
@@ -57,6 +69,7 @@ export const FurnitureRenderer = ({ item }) => {
         window={item}
         isSelected={isSelected}
         onSelect={select}
+        onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
       />
@@ -72,6 +85,7 @@ export const FurnitureRenderer = ({ item }) => {
       draggable
       onClick={() => select(item.id)}
       onTap={() => select(item.id)}
+      onDragMove={(e) => handleDragMove(e, item.id)}
       onDragEnd={(e) => handleDragEnd(e, item.id)}
       onTransformEnd={(e) => handleTransformEnd(e, item.id)}
     >

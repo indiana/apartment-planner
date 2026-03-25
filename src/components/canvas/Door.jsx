@@ -1,7 +1,7 @@
 import { Group, Rect, Line, Shape } from 'react-konva'
 import { COLORS } from '../../constants'
 
-export const Door = ({ door, isSelected, onSelect, onDragEnd, onTransformEnd }) => {
+export const Door = ({ door, isSelected, onSelect, onDragMove, onDragEnd, onTransformEnd }) => {
   return (
     <Group
       id={door.id}
@@ -11,6 +11,7 @@ export const Door = ({ door, isSelected, onSelect, onDragEnd, onTransformEnd }) 
       draggable
       onClick={() => onSelect(door.id)}
       onTap={() => onSelect(door.id)}
+      onDragMove={(e) => onDragMove(e, door.id)}
       onDragEnd={(e) => onDragEnd(e, door.id)}
       onTransformEnd={(e) => onTransformEnd(e, door.id)}
     >

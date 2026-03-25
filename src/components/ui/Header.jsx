@@ -1,7 +1,10 @@
 import { useZoom } from '../../hooks'
+import { usePlannerStore } from '../../store/plannerStore'
 
 export const Header = ({ onExport, onClear, roomCount }) => {
   const { scale, zoomIn, zoomOut, zoomReset } = useZoom()
+  const snapToWalls = usePlannerStore((state) => state.snapToWalls)
+  const toggleSnapToWalls = usePlannerStore((state) => state.toggleSnapToWalls)
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
@@ -30,6 +33,15 @@ export const Header = ({ onExport, onClear, roomCount }) => {
             Reset
           </button>
         </div>
+        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={snapToWalls}
+            onChange={toggleSnapToWalls}
+            className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+          />
+          Snap to walls
+        </label>
         <button
           onClick={onExport}
           disabled={roomCount === 0}

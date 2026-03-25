@@ -1,7 +1,7 @@
 import { Group, Rect, Line } from 'react-konva'
 import { COLORS } from '../../constants'
 
-export const Window = ({ window, isSelected, onSelect, onDragEnd, onTransformEnd }) => {
+export const Window = ({ window, isSelected, onSelect, onDragMove, onDragEnd, onTransformEnd }) => {
   return (
     <Group
       id={window.id}
@@ -11,6 +11,7 @@ export const Window = ({ window, isSelected, onSelect, onDragEnd, onTransformEnd
       draggable
       onClick={() => onSelect(window.id)}
       onTap={() => onSelect(window.id)}
+      onDragMove={(e) => onDragMove(e, window.id)}
       onDragEnd={(e) => onDragEnd(e, window.id)}
       onTransformEnd={(e) => onTransformEnd(e, window.id)}
     >

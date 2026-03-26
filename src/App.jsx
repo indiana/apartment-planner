@@ -3,7 +3,7 @@ import { usePlannerStore } from './store/plannerStore'
 import { useDrawing, useExport } from './hooks'
 import { FloorCanvas } from './components/canvas'
 import { Header, Sidebar, SelectionPanel } from './components/ui'
-import { FURNITURE_TYPES } from './constants'
+import { FURNITURE_TYPES, OPENING_TYPES } from './constants'
 import { toPixels, findRoomAtPoint } from './utils'
 
 function App() {
@@ -33,7 +33,8 @@ function App() {
     const furnitureType = e.dataTransfer.getData('text/plain')
     if (!furnitureType) return
 
-    const itemType = FURNITURE_TYPES.find((t) => t.type === furnitureType)
+    const itemType = FURNITURE_TYPES.find((t) => t.type === furnitureType) ||
+                      OPENING_TYPES.find((t) => t.type === furnitureType)
     if (!itemType) return
 
     const stageContainer = stageContainerRef.current
@@ -50,9 +51,7 @@ function App() {
       x: x - toPixels(itemType.width) / 2,
       y: y - toPixels(itemType.height) / 2,
       width: toPixels(itemType.width),
-      height: itemType.type === 'door' || itemType.type === 'window'
-        ? itemType.type === 'door' ? 10 : 10
-        : toPixels(itemType.height),
+      height: toPixels(itemType.height),
       rotation: 0,
       flip: 1,
       roomId: targetRoom?.id || null,

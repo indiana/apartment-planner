@@ -18,8 +18,8 @@ export const FURNITURE_TYPES = [
 ]
 
 export const OPENING_TYPES = [
-  { type: 'door', name: 'Door', width: 0.9, color: '#8b5cf6' },
-  { type: 'window', name: 'Window', width: 1.2, color: '#06b6d4' },
+  { type: 'door', name: 'Door', width: 0.9, height: 0.1, color: '#8b5cf6' },
+  { type: 'window', name: 'Window', width: 1.2, height: 0.1, color: '#06b6d4' },
 ]
 
 export const COLORS = {

@@ -2,12 +2,15 @@ import { Group, Rect, Line, Shape } from 'react-konva'
 import { COLORS } from '../../constants'
 
 export const Door = ({ door, isSelected, onSelect, onDragMove, onDragEnd, onTransformEnd }) => {
+  const flip = door.flip || 1
+
   return (
     <Group
       id={door.id}
       x={door.x}
       y={door.y}
       rotation={door.rotation}
+      scaleX={flip}
       draggable
       onClick={() => onSelect(door.id)}
       onTap={() => onSelect(door.id)}
@@ -22,15 +25,10 @@ export const Door = ({ door, isSelected, onSelect, onDragMove, onDragEnd, onTran
         stroke={isSelected ? COLORS.primary : COLORS.door}
         strokeWidth={isSelected ? 3 : 2}
       />
-      <Line
-        points={[door.width, door.height / 2, door.width, door.width]}
-        stroke={COLORS.door}
-        strokeWidth={2}
-      />
       <Shape
         sceneFunc={(context, shape) => {
           context.beginPath()
-          context.arc(0, door.height / 2, door.width, 0, Math.PI / 2, false)
+          context.arc(door.width, door.height / 2, door.width, Math.PI / 2, Math.PI, false)
           context.fillStrokeShape(shape)
         }}
         stroke={COLORS.door}

@@ -201,6 +201,12 @@ export const usePlannerStore = create(
         const item = furniture.find((f) => f.id === selectedId)
         return item?.type === 'door' || false
       },
+
+      isSelectedOpening: () => {
+        const { selectedId, furniture } = get()
+        const item = furniture.find((f) => f.id === selectedId)
+        return item?.type === 'door' || item?.type === 'window' || item?.type === 'passage' || false
+      },
     }),
     {
       name: STORAGE_KEY,

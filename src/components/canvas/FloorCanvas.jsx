@@ -31,12 +31,22 @@ export const FloorCanvas = ({
     const selectedNode = stage.findOne(`#${selectedId}`)
 
     if (selectedNode) {
+      const selectedItem = furniture.find(f => f.id === selectedId)
+      const isOpening = selectedItem && ['door', 'window', 'passage'].includes(selectedItem.type)
+      transformerRef.current.enabledAnchors(isOpening
+        ? ['middle-left', 'middle-right']
+        : [
+            'top-left', 'top-right', 'bottom-left', 'bottom-right',
+            'middle-left', 'middle-right', 'top-center', 'bottom-center'
+          ]
+      )
+      transformerRef.current.rotateEnabled(!isOpening)
       transformerRef.current.nodes([selectedNode])
       transformerRef.current.getLayer().batchDraw()
     } else {
       transformerRef.current.nodes([])
     }
-  }, [selectedId, stageRef])
+  }, [selectedId, stageRef, furniture])
 
   const handleMouseDown = (e) => {
     const clickedOnEmpty = isCanvasClick(e)
@@ -148,7 +158,7 @@ export const FloorCanvas = ({
         <Transformer
           ref={transformerRef}
           boundBoxFunc={(oldBox, newBox) => {
-            if (newBox.width < LIMITS.minFurnitureSize || newBox.height < LIMITS.minFurnitureSize) {
+            if (newBox.width < LIMITS.minFurnitureSize) {
               return oldBox
             }
             return newBox

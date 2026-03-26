@@ -1,4 +1,6 @@
 import { usePlannerStore } from '../../store/plannerStore'
+import { toMeters } from '../../utils'
+import { PIXELS_PER_METER } from '../../constants'
 
 export const SelectionPanel = () => {
   const selectedId = usePlannerStore((state) => state.selectedId)
@@ -11,6 +13,8 @@ export const SelectionPanel = () => {
   const flipSelected = usePlannerStore((state) => state.flipSelected)
   const deleteSelected = usePlannerStore((state) => state.deleteSelected)
   const isSelectedDoor = usePlannerStore((state) => state.isSelectedDoor)
+  const isSelectedOpening = usePlannerStore((state) => state.isSelectedOpening)
+  const updateFurniture = usePlannerStore((state) => state.updateFurniture)
 
   if (!selectedId) return null
 
@@ -31,6 +35,13 @@ export const SelectionPanel = () => {
     setShowName(selectedId, e.target.checked)
   }
 
+  const handleWidthChange = (e) => {
+    const widthMeters = parseFloat(e.target.value)
+    if (isNaN(widthMeters) || widthMeters <= 0) return
+    const widthPixels = Math.round(widthMeters * PIXELS_PER_METER)
+    updateFurniture(selectedId, { width: widthPixels })
+  }
+
   const item = isRoom ? selectedRoom : selectedFurniture
 
   return (
@@ -47,6 +58,21 @@ export const SelectionPanel = () => {
           placeholder="Name"
         />
       </div>
+
+      {isSelectedOpening() && (
+        <div className="mb-3">
+          <label className="block text-xs text-gray-500 mb-1">Width (m)</label>
+          <input
+            type="number"
+            step="0.1"
+            min="0.1"
+            max="5"
+            value={selectedFurniture ? toMeters(selectedFurniture.width).toFixed(1) : ''}
+            onChange={handleWidthChange}
+            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+      )}
 
       <div className="mb-4">
         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">

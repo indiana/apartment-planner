@@ -33,11 +33,11 @@ export const FurnitureRenderer = ({ item }) => {
 
   const handleTransformEnd = (e, id) => {
     const node = e.target
+    const isOpening = ['door', 'window', 'passage'].includes(item.type)
 
     const scaleX = node.scaleX()
-    const scaleY = node.scaleY()
-    const newWidth = Math.max(20, node.width() * scaleX)
-    const newHeight = Math.max(20, node.height() * scaleY)
+    const newWidth = Math.max(20, item.width * scaleX)
+    const newHeight = isOpening ? item.height : Math.max(20, item.height * node.scaleY())
 
     node.scaleX(1)
     node.scaleY(1)

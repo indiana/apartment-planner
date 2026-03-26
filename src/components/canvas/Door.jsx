@@ -1,4 +1,4 @@
-import { Group, Rect, Line, Shape } from 'react-konva'
+import { Group, Rect, Shape } from 'react-konva'
 import { COLORS } from '../../constants'
 
 export const Door = ({ door, isSelected, onSelect, onDragMove, onDragEnd, onTransformEnd }) => {
@@ -10,7 +10,6 @@ export const Door = ({ door, isSelected, onSelect, onDragMove, onDragEnd, onTran
       x={door.x}
       y={door.y}
       rotation={door.rotation}
-      scaleX={flip}
       draggable
       onClick={() => onSelect(door.id)}
       onTap={() => onSelect(door.id)}
@@ -18,24 +17,26 @@ export const Door = ({ door, isSelected, onSelect, onDragMove, onDragEnd, onTran
       onDragEnd={(e) => onDragEnd(e, door.id)}
       onTransformEnd={(e) => onTransformEnd(e, door.id)}
     >
-      <Rect
-        width={door.width}
-        height={door.height}
-        fill={COLORS.door}
-        stroke={isSelected ? COLORS.primary : COLORS.door}
-        strokeWidth={isSelected ? 3 : 2}
-      />
-      <Shape
-        sceneFunc={(context, shape) => {
-          context.beginPath()
-          context.arc(door.width, door.height / 2, door.width, Math.PI / 2, Math.PI, false)
-          context.fillStrokeShape(shape)
-        }}
-        stroke={COLORS.door}
-        strokeWidth={1}
-        dash={[4, 4]}
-        opacity={0.5}
-      />
+      <Group scaleX={flip}>
+        <Rect
+          width={door.width}
+          height={door.height}
+          fill={COLORS.door}
+          stroke={isSelected ? COLORS.primary : COLORS.door}
+          strokeWidth={isSelected ? 3 : 2}
+        />
+        <Shape
+          sceneFunc={(context, shape) => {
+            context.beginPath()
+            context.arc(door.width, door.height / 2, door.width, Math.PI / 2, Math.PI, false)
+            context.fillStrokeShape(shape)
+          }}
+          stroke={COLORS.door}
+          strokeWidth={1}
+          dash={[4, 4]}
+          opacity={0.5}
+        />
+      </Group>
     </Group>
   )
 }

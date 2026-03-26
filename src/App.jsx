@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { usePlannerStore } from './store/plannerStore'
 import { useDrawing, useExport } from './hooks'
 import { FloorCanvas } from './components/canvas'
@@ -12,6 +12,24 @@ function App() {
   const rooms = usePlannerStore((state) => state.rooms)
   const addFurniture = usePlannerStore((state) => state.addFurniture)
   const clearAll = usePlannerStore((state) => state.clearAll)
+  const deleteSelected = usePlannerStore((state) => state.deleteSelected)
+  const selectedId = usePlannerStore((state) => state.selectedId)
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
+        const target = e.target
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+          return
+        }
+        e.preventDefault()
+        deleteSelected()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedId, deleteSelected])
 
   const {
     drawing,

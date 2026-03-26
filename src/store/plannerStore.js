@@ -10,9 +10,14 @@ export const usePlannerStore = create(
       furniture: [],
       selectedId: null,
       snapToWalls: false,
+      roomsLocked: false,
 
       toggleSnapToWalls: () => {
         set((state) => ({ snapToWalls: !state.snapToWalls }))
+      },
+
+      toggleRoomsLocked: () => {
+        set((state) => ({ roomsLocked: !state.roomsLocked }))
       },
 
       addRoom: (roomData) => {
@@ -213,6 +218,8 @@ export const usePlannerStore = create(
       partialize: (state) => ({
         rooms: state.rooms,
         furniture: state.furniture,
+        snapToWalls: state.snapToWalls,
+        roomsLocked: state.roomsLocked,
       }),
     }
   )

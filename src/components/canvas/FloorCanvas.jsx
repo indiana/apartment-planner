@@ -23,6 +23,7 @@ export const FloorCanvas = ({
   const selectedId = usePlannerStore((state) => state.selectedId)
   const deselect = usePlannerStore((state) => state.deselect)
   const select = usePlannerStore((state) => state.select)
+  const roomsLocked = usePlannerStore((state) => state.roomsLocked)
 
   useEffect(() => {
     if (!transformerRef.current || !stageRef.current) return
@@ -32,21 +33,33 @@ export const FloorCanvas = ({
 
     if (selectedNode) {
       const selectedItem = furniture.find(f => f.id === selectedId)
+      const isRoom = selectedId?.startsWith('room-')
       const isOpening = selectedItem && ['door', 'window', 'passage'].includes(selectedItem.type)
-      transformerRef.current.enabledAnchors(isOpening
-        ? ['middle-left', 'middle-right']
-        : [
-            'top-left', 'top-right', 'bottom-left', 'bottom-right',
-            'middle-left', 'middle-right', 'top-center', 'bottom-center'
-          ]
-      )
-      transformerRef.current.rotateEnabled(!isOpening)
-      transformerRef.current.nodes([selectedNode])
-      transformerRef.current.getLayer().batchDraw()
+
+      if (isRoom && roomsLocked) {
+        transformerRef.current.nodes([])
+      } else {
+        transformerRef.current.enabledAnchors(isOpening
+          ? ['middle-left', 'middle-right']
+          : [
+              'top-left', 'top-right', 'bottom-left', 'bottom-right',
+              'middle-left', 'middle-right', 'top-center', 'bottom-center'
+            ]
+        )
+        transformerRef.current.rotateEnabled(!isOpening)
+        transformerRef.current.nodes([selectedNode])
+        transformerRef.current.getLayer().batchDraw()
+      }
     } else {
       transformerRef.current.nodes([])
     }
-  }, [selectedId, stageRef, furniture])
+  }, [selectedId, stageRef, furniture, roomsLocked])
+
+  useEffect(() => {
+    if (roomsLocked && selectedId?.startsWith('room-')) {
+      deselect()
+    }
+  }, [roomsLocked, selectedId, deselect])
 
   const handleMouseDown = (e) => {
     const clickedOnEmpty = isCanvasClick(e)
@@ -56,10 +69,12 @@ export const FloorCanvas = ({
 
     if (clickedOnEmpty) {
       deselect()
-      const stage = stageRef.current
-      if (!stage) return
-      const pos = stage.getPointerPosition()
-      startDrawing(pos)
+      if (!roomsLocked) {
+        const stage = stageRef.current
+        if (!stage) return
+        const pos = stage.getPointerPosition()
+        startDrawing(pos)
+      }
     } else if (!clickedOnAnchor && !clickedOnTransformer) {
       const id = e.target.id()
       if (id && id !== selectedId && !clickedOnRoom) {

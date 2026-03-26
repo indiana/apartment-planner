@@ -9,6 +9,7 @@ export const Room = ({ room }) => {
   const updateRoom = usePlannerStore((state) => state.updateRoom)
   const snapToWalls = usePlannerStore((state) => state.snapToWalls)
   const rooms = usePlannerStore((state) => state.rooms)
+  const roomsLocked = usePlannerStore((state) => state.roomsLocked)
   const isSelected = selectedId === room.id
 
   const handleDragMove = (e) => {
@@ -55,9 +56,9 @@ export const Room = ({ room }) => {
       id={room.id}
       x={room.x}
       y={room.y}
-      draggable
-      onClick={() => select(room.id)}
-      onTap={() => select(room.id)}
+      draggable={!roomsLocked}
+      onClick={() => !roomsLocked && select(room.id)}
+      onTap={() => !roomsLocked && select(room.id)}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onTransformEnd={handleTransformEnd}

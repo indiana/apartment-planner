@@ -5,6 +5,8 @@ export const Header = ({ onExport, onClear, roomCount }) => {
   const { scale, zoomIn, zoomOut, zoomReset } = useZoom()
   const snapToWalls = usePlannerStore((state) => state.snapToWalls)
   const toggleSnapToWalls = usePlannerStore((state) => state.toggleSnapToWalls)
+  const roomsLocked = usePlannerStore((state) => state.roomsLocked)
+  const toggleRoomsLocked = usePlannerStore((state) => state.toggleRoomsLocked)
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
@@ -41,6 +43,15 @@ export const Header = ({ onExport, onClear, roomCount }) => {
             className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
           />
           Snap to walls
+        </label>
+        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={roomsLocked}
+            onChange={toggleRoomsLocked}
+            className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+          />
+          Lock rooms
         </label>
         <button
           onClick={onExport}

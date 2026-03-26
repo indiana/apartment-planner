@@ -1,3 +1,6 @@
 export { useDrawing } from './useDrawing'
 export { useZoom } from './useZoom'
 export { useExport } from './useExport'
+export { useSnap } from './useSnap'
+export { useKeyboard } from './useKeyboard'
+export { useDragDrop } from './useDragDrop'

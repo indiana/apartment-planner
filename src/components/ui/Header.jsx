@@ -1,5 +1,5 @@
 import { useZoom } from '../../hooks'
-import { usePlannerStore } from '../../store/plannerStore'
+import { usePlannerStore } from '../../store'
 
 export const Header = ({ onExport, onClear, roomCount }) => {
   const { scale, zoomIn, zoomOut, zoomReset } = useZoom()

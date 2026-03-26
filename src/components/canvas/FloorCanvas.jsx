@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { Stage, Layer, Line, Text, Transformer, Rect } from 'react-konva'
-import { usePlannerStore } from '../../store/plannerStore'
+import { usePlannerStore } from '../../store'
 import { Room } from './Room'
 import { FurnitureRenderer } from './FurnitureRenderer'
 import { DrawingPreview } from './DrawingPreview'

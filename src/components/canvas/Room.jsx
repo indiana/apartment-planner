@@ -1,21 +1,21 @@
 import { Group, Rect, Text } from 'react-konva'
-import { usePlannerStore } from '../../store/plannerStore'
+import { usePlannerStore } from '../../store'
 import { COLORS } from '../../constants'
-import { formatMeters, snapRoomPosition } from '../../utils'
+import { formatMeters } from '../../utils'
+import { useSnap } from '../../hooks/useSnap'
 
 export const Room = ({ room }) => {
-  const selectedId = usePlannerStore((state) => state.selectedId)
-  const select = usePlannerStore((state) => state.select)
-  const updateRoom = usePlannerStore((state) => state.updateRoom)
-  const snapToWalls = usePlannerStore((state) => state.snapToWalls)
-  const rooms = usePlannerStore((state) => state.rooms)
-  const roomsLocked = usePlannerStore((state) => state.roomsLocked)
+  const selectedId = usePlannerStore((s) => s.selectedId)
+  const select = usePlannerStore((s) => s.select)
+  const updateRoom = usePlannerStore((s) => s.updateRoom)
+  const roomsLocked = usePlannerStore((s) => s.roomsLocked)
+  const { snapRoomPosition } = useSnap()
+
   const isSelected = selectedId === room.id
 
   const handleDragMove = (e) => {
-    if (!snapToWalls) return
     const node = e.target
-    const snapped = snapRoomPosition(node.x(), node.y(), room.width, room.height, rooms, room.id)
+    const snapped = snapRoomPosition(node.x(), node.y(), room.width, room.height, room.id)
     node.position({ x: snapped.x, y: snapped.y })
   }
 

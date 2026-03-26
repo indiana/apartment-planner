@@ -1,4 +1,4 @@
-import { usePlannerStore } from '../../store/plannerStore'
+import { usePlannerStore } from '../../store'
 import { formatSurface, getTotalSurface } from '../../utils'
 
 export const RoomsList = () => {

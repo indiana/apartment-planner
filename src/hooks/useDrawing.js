@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { usePlannerStore } from '../store/plannerStore'
+import { usePlannerStore } from '../store'
 import { LIMITS } from '../constants'
 
 export const useDrawing = () => {

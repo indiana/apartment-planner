@@ -1,145 +1,30 @@
-import { usePlannerStore } from '../../store/plannerStore'
-import { toMeters } from '../../utils'
-import { PIXELS_PER_METER } from '../../constants'
+import { usePlannerStore } from '../../store'
+import { PropertyInputs } from './panels/PropertyInputs'
+import { TransformControls } from './panels/TransformControls'
 
 export const SelectionPanel = () => {
-  const selectedId = usePlannerStore((state) => state.selectedId)
-  const rooms = usePlannerStore((state) => state.rooms)
-  const furniture = usePlannerStore((state) => state.furniture)
-  const renameRoom = usePlannerStore((state) => state.renameRoom)
-  const renameFurniture = usePlannerStore((state) => state.renameFurniture)
-  const setShowName = usePlannerStore((state) => state.setShowName)
-  const rotateSelected = usePlannerStore((state) => state.rotateSelected)
-  const flipSelected = usePlannerStore((state) => state.flipSelected)
-  const deleteSelected = usePlannerStore((state) => state.deleteSelected)
-  const isSelectedDoor = usePlannerStore((state) => state.isSelectedDoor)
-  const updateFurniture = usePlannerStore((state) => state.updateFurniture)
+  const selectedId = usePlannerStore((s) => s.selectedId)
+  const rooms = usePlannerStore((s) => s.rooms)
+  const furniture = usePlannerStore((s) => s.furniture)
 
   if (!selectedId) return null
 
   const selectedRoom = rooms.find((r) => r.id === selectedId)
   const selectedFurniture = furniture.find((f) => f.id === selectedId)
   const isRoom = selectedId.startsWith('room-')
-
-  const handleNameChange = (e) => {
-    const newName = e.target.value
-    if (isRoom) {
-      renameRoom(selectedId, newName)
-    } else {
-      renameFurniture(selectedId, newName)
-    }
-  }
-
-  const handleShowNameChange = (e) => {
-    setShowName(selectedId, e.target.checked)
-  }
-
-  const handleWidthChange = (e) => {
-    const widthMeters = parseFloat(e.target.value)
-    if (isNaN(widthMeters) || widthMeters <= 0) return
-    const widthPixels = Math.round(widthMeters * PIXELS_PER_METER)
-    updateFurniture(selectedId, { width: widthPixels })
-  }
-
-  const handleHeightChange = (e) => {
-    const heightMeters = parseFloat(e.target.value)
-    if (isNaN(heightMeters) || heightMeters <= 0) return
-    const heightPixels = Math.round(heightMeters * PIXELS_PER_METER)
-    updateFurniture(selectedId, { height: heightPixels })
-  }
-
   const item = isRoom ? selectedRoom : selectedFurniture
-  const isOpening = selectedFurniture && ['door', 'window', 'passage'].includes(selectedFurniture.type)
-  const showHeight = selectedFurniture && !isOpening
 
   return (
     <aside className="w-56 bg-white border-l border-gray-200 p-4">
       <h2 className="text-sm font-medium text-gray-600 mb-3">Properties</h2>
 
-      <div className="mb-3">
-        <label className="block text-xs text-gray-500 mb-1">Name</label>
-        <input
-          type="text"
-          value={item?.name || ''}
-          onChange={handleNameChange}
-          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Name"
-        />
-      </div>
+      <PropertyInputs
+        item={item}
+        isRoom={isRoom}
+        selectedFurniture={selectedFurniture}
+      />
 
-      {!isRoom && selectedFurniture && (
-        <>
-          <div className="mb-3">
-            <label className="block text-xs text-gray-500 mb-1">Width (m)</label>
-            <input
-              type="number"
-              step="0.1"
-              min="0.2"
-              max="10"
-              value={toMeters(selectedFurniture.width).toFixed(1)}
-              onChange={handleWidthChange}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-          {showHeight && (
-            <div className="mb-3">
-              <label className="block text-xs text-gray-500 mb-1">Height (m)</label>
-              <input
-                type="number"
-                step="0.1"
-                min="0.2"
-                max="10"
-                value={toMeters(selectedFurniture.height).toFixed(1)}
-                onChange={handleHeightChange}
-                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          )}
-        </>
-      )}
-
-      <div className="mb-4">
-        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={item?.showName ?? true}
-            onChange={handleShowNameChange}
-            className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-          />
-          Show name
-        </label>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          onClick={() => rotateSelected(-90)}
-          className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm"
-        >
-          ↺ 90°
-        </button>
-        <button
-          onClick={() => rotateSelected(90)}
-          className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm"
-        >
-          ↻ 90°
-        </button>
-        {isSelectedDoor() && (
-          <button
-            onClick={flipSelected}
-            className="flex-1 px-3 py-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 text-sm"
-            title="Flip door"
-          >
-            ⇄
-          </button>
-        )}
-      </div>
-
-      <button
-        onClick={deleteSelected}
-        className="mt-4 w-full px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 text-sm"
-      >
-        Delete
-      </button>
+      <TransformControls />
     </aside>
   )
 }

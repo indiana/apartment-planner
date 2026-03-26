@@ -1,35 +1,16 @@
-import { useRef, useEffect } from 'react'
-import { usePlannerStore } from './store/plannerStore'
-import { useDrawing, useExport } from './hooks'
+import { useRef } from 'react'
+import { usePlannerStore } from './store'
+import { useDrawing, useExport, useKeyboard, useDragDrop } from './hooks'
 import { FloorCanvas } from './components/canvas'
 import { Header, Sidebar, SelectionPanel } from './components/ui'
-import { FURNITURE_TYPES, OPENING_TYPES, WALL_OPENING_TYPES } from './constants'
-import { toPixels, findRoomAtPoint } from './utils'
 
 function App() {
   const stageRef = useRef(null)
   const stageContainerRef = useRef(null)
-  const rooms = usePlannerStore((state) => state.rooms)
-  const addFurniture = usePlannerStore((state) => state.addFurniture)
-  const clearAll = usePlannerStore((state) => state.clearAll)
-  const deleteSelected = usePlannerStore((state) => state.deleteSelected)
-  const selectedId = usePlannerStore((state) => state.selectedId)
+  const rooms = usePlannerStore((s) => s.rooms)
+  const clearAll = usePlannerStore((s) => s.clearAll)
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
-        const target = e.target
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
-          return
-        }
-        e.preventDefault()
-        deleteSelected()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedId, deleteSelected])
+  useKeyboard()
 
   const {
     drawing,
@@ -41,41 +22,7 @@ function App() {
   } = useDrawing()
 
   const { exportAsPng } = useExport(stageRef)
-
-  const handleDragOver = (e) => {
-    e.preventDefault()
-  }
-
-  const handleDrop = (e) => {
-    e.preventDefault()
-    const furnitureType = e.dataTransfer.getData('text/plain')
-    if (!furnitureType) return
-
-    const itemType = FURNITURE_TYPES.find((t) => t.type === furnitureType) ||
-                      OPENING_TYPES.find((t) => t.type === furnitureType) ||
-                      WALL_OPENING_TYPES.find((t) => t.type === furnitureType)
-    if (!itemType) return
-
-    const stageContainer = stageContainerRef.current
-    if (!stageContainer) return
-
-    const rect = stageContainer.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-
-    const targetRoom = findRoomAtPoint(rooms, x, y)
-
-    addFurniture({
-      type: furnitureType,
-      x: x - toPixels(itemType.width) / 2,
-      y: y - toPixels(itemType.height) / 2,
-      width: toPixels(itemType.width),
-      height: toPixels(itemType.height),
-      rotation: 0,
-      flip: 1,
-      roomId: targetRoom?.id || null,
-    })
-  }
+  const { handleDragOver, handleDrop } = useDragDrop(stageContainerRef)
 
   const handleClear = () => {
     clearAll()

@@ -13,7 +13,6 @@ export const SelectionPanel = () => {
   const flipSelected = usePlannerStore((state) => state.flipSelected)
   const deleteSelected = usePlannerStore((state) => state.deleteSelected)
   const isSelectedDoor = usePlannerStore((state) => state.isSelectedDoor)
-  const isSelectedOpening = usePlannerStore((state) => state.isSelectedOpening)
   const updateFurniture = usePlannerStore((state) => state.updateFurniture)
 
   if (!selectedId) return null
@@ -42,7 +41,16 @@ export const SelectionPanel = () => {
     updateFurniture(selectedId, { width: widthPixels })
   }
 
+  const handleHeightChange = (e) => {
+    const heightMeters = parseFloat(e.target.value)
+    if (isNaN(heightMeters) || heightMeters <= 0) return
+    const heightPixels = Math.round(heightMeters * PIXELS_PER_METER)
+    updateFurniture(selectedId, { height: heightPixels })
+  }
+
   const item = isRoom ? selectedRoom : selectedFurniture
+  const isOpening = selectedFurniture && ['door', 'window', 'passage'].includes(selectedFurniture.type)
+  const showHeight = selectedFurniture && !isOpening
 
   return (
     <aside className="w-56 bg-white border-l border-gray-200 p-4">
@@ -59,19 +67,35 @@ export const SelectionPanel = () => {
         />
       </div>
 
-      {isSelectedOpening() && (
-        <div className="mb-3">
-          <label className="block text-xs text-gray-500 mb-1">Width (m)</label>
-          <input
-            type="number"
-            step="0.1"
-            min="0.1"
-            max="5"
-            value={selectedFurniture ? toMeters(selectedFurniture.width).toFixed(1) : ''}
-            onChange={handleWidthChange}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+      {!isRoom && selectedFurniture && (
+        <>
+          <div className="mb-3">
+            <label className="block text-xs text-gray-500 mb-1">Width (m)</label>
+            <input
+              type="number"
+              step="0.1"
+              min="0.2"
+              max="10"
+              value={toMeters(selectedFurniture.width).toFixed(1)}
+              onChange={handleWidthChange}
+              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          {showHeight && (
+            <div className="mb-3">
+              <label className="block text-xs text-gray-500 mb-1">Height (m)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0.2"
+                max="10"
+                value={toMeters(selectedFurniture.height).toFixed(1)}
+                onChange={handleHeightChange}
+                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          )}
+        </>
       )}
 
       <div className="mb-4">

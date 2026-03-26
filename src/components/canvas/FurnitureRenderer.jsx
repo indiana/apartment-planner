@@ -1,6 +1,7 @@
 import { Rect, Group, Text } from 'react-konva'
 import { Door } from './Door'
 import { Window } from './Window'
+import { WallOpening } from './WallOpening'
 import { usePlannerStore } from '../../store/plannerStore'
 import { FURNITURE_TYPES, COLORS } from '../../constants'
 import { snapPosition } from '../../utils'
@@ -67,6 +68,19 @@ export const FurnitureRenderer = ({ item }) => {
     return (
       <Window
         window={item}
+        isSelected={isSelected}
+        onSelect={select}
+        onDragMove={handleDragMove}
+        onDragEnd={handleDragEnd}
+        onTransformEnd={handleTransformEnd}
+      />
+    )
+  }
+
+  if (item.type === 'passage') {
+    return (
+      <WallOpening
+        opening={item}
         isSelected={isSelected}
         onSelect={select}
         onDragMove={handleDragMove}

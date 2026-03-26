@@ -22,6 +22,10 @@ export const OPENING_TYPES = [
   { type: 'window', name: 'Window', width: 1.2, height: 0.1, color: '#06b6d4' },
 ]
 
+export const WALL_OPENING_TYPES = [
+  { type: 'passage', name: 'Passage', width: 1.0, height: 0.05, color: '#374151' },
+]
+
 export const COLORS = {
   primary: '#6366f1',
   primaryDark: '#4f46e5',

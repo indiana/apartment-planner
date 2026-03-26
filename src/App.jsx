@@ -3,7 +3,7 @@ import { usePlannerStore } from './store/plannerStore'
 import { useDrawing, useExport } from './hooks'
 import { FloorCanvas } from './components/canvas'
 import { Header, Sidebar, SelectionPanel } from './components/ui'
-import { FURNITURE_TYPES, OPENING_TYPES } from './constants'
+import { FURNITURE_TYPES, OPENING_TYPES, WALL_OPENING_TYPES } from './constants'
 import { toPixels, findRoomAtPoint } from './utils'
 
 function App() {
@@ -34,7 +34,8 @@ function App() {
     if (!furnitureType) return
 
     const itemType = FURNITURE_TYPES.find((t) => t.type === furnitureType) ||
-                      OPENING_TYPES.find((t) => t.type === furnitureType)
+                      OPENING_TYPES.find((t) => t.type === furnitureType) ||
+                      WALL_OPENING_TYPES.find((t) => t.type === furnitureType)
     if (!itemType) return
 
     const stageContainer = stageContainerRef.current

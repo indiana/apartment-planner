@@ -1,4 +1,4 @@
-import { FURNITURE_TYPES, OPENING_TYPES, PIXELS_PER_METER } from '../../constants'
+import { FURNITURE_TYPES, OPENING_TYPES, WALL_OPENING_TYPES, PIXELS_PER_METER, COLORS } from '../../constants'
 
 export const FurniturePalette = () => {
   const toPixels = (meters) => meters * PIXELS_PER_METER
@@ -57,6 +57,31 @@ export const FurniturePalette = () => {
             <div>
               <div className="text-sm font-medium text-gray-700">{type.name}</div>
               <div className="text-xs text-gray-500">{type.width}m wide</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="text-sm font-medium text-gray-600 mb-3 mt-6">Wall Modifications</h2>
+      <div className="space-y-2">
+        {WALL_OPENING_TYPES.map((type) => (
+          <div
+            key={type.type}
+            draggable
+            onDragStart={(e) => handleDragStart(e, type.type)}
+            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-grab hover:bg-gray-100 active:cursor-grabbing border border-gray-200"
+          >
+            <div
+              className="flex-shrink-0"
+              style={{
+                backgroundColor: COLORS.room.stroke,
+                width: 32,
+                height: 4,
+              }}
+            />
+            <div>
+              <div className="text-sm font-medium text-gray-700">{type.name}</div>
+              <div className="text-xs text-gray-500">{type.width}m opening</div>
             </div>
           </div>
         ))}

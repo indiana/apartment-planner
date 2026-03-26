@@ -1,13 +1,22 @@
 import { Group, Rect, Text } from 'react-konva'
 import { usePlannerStore } from '../../store/plannerStore'
 import { COLORS } from '../../constants'
-import { formatMeters } from '../../utils'
+import { formatMeters, snapRoomPosition } from '../../utils'
 
 export const Room = ({ room }) => {
   const selectedId = usePlannerStore((state) => state.selectedId)
   const select = usePlannerStore((state) => state.select)
   const updateRoom = usePlannerStore((state) => state.updateRoom)
+  const snapToWalls = usePlannerStore((state) => state.snapToWalls)
+  const rooms = usePlannerStore((state) => state.rooms)
   const isSelected = selectedId === room.id
+
+  const handleDragMove = (e) => {
+    if (!snapToWalls) return
+    const node = e.target
+    const snapped = snapRoomPosition(node.x(), node.y(), room.width, room.height, rooms, room.id)
+    node.position({ x: snapped.x, y: snapped.y })
+  }
 
   const handleDragEnd = (e) => {
     const oldRoom = { x: room.x, y: room.y }
@@ -49,6 +58,7 @@ export const Room = ({ room }) => {
       draggable
       onClick={() => select(room.id)}
       onTap={() => select(room.id)}
+      onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onTransformEnd={handleTransformEnd}
     >
